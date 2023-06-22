@@ -6,14 +6,17 @@ import requests
 from decouple import config
 
 
-DISCORD_OA_ONBOARDING_CHANNEL_ID=config('DISCORD_OA_ONBOARDING_CHANNEL_ID')
-DISCORD_OA_GUILD_ID=config('DISCORD_OA_GUILD_ID')
-DISCORD_BOT_TOKEN=config('DISCORD_BOT_TOKEN')
+CHANNEL_ID=config('CHANNEL_ID')
+GUILD_ID=config('GUILD_ID')
+BOT_TOKEN=config('BOT_TOKEN')
 
+
+
+# Returns a Discord invite code
 def get_invite():
 
     headers = {
-      "Authorization": f"Bot {DISCORD_BOT_TOKEN}",
+      "Authorization": f"Bot {BOT_TOKEN}",
       "Content-type": "application/json"
     }
 
@@ -22,7 +25,7 @@ def get_invite():
       "max_uses": 1,
       "unique": True
     }
-    endpoint=f"https://discord.com/api/v9/channels/{DISCORD_OA_ONBOARDING_CHANNEL_ID}/invites"
+    endpoint=f"https://discord.com/api/v9/channels/{CHANNEL_ID}/invites"
 
     r = requests.post(endpoint, headers=headers, json=body)
 
@@ -32,14 +35,15 @@ def get_invite():
 
     return code
 
+
+# Returns a list of scheduled events for the guild, with handling for rate-limiting.
 def get_events():
 
-
     headers = {
-      "Authorization": f"Bot {DISCORD_BOT_TOKEN}"
+      "Authorization": f"Bot {BOT_TOKEN}"
     }
 
-    endpoint=f"https://discord.com/api/v9/guilds/{DISCORD_OA_GUILD_ID}/scheduled-events"
+    endpoint=f"https://discord.com/api/v9/guilds/{GUILD_ID}/scheduled-events"
 
     r = requests.get(endpoint, headers=headers)
 
@@ -73,15 +77,16 @@ def get_events():
 
         return f"Discord request error: status {status}"
 
-# def add_event(name, description, date, start_time, end_time, entity_type, location):
+
+# Creates a new event. (name, description, date, start_time, end_time, entity_type, location):
 def add_event(name, entity_type, channel_id, description, start_datetime, end_datetime, location):
 
     headers = {
-        "Authorization": f"Bot {DISCORD_BOT_TOKEN}",
+        "Authorization": f"Bot {BOT_TOKEN}",
         "Content-type": "application/json"
     }
 
-    endpoint=f"https://discord.com/api/v9/guilds/{DISCORD_OA_GUILD_ID}/scheduled-events"
+    endpoint=f"https://discord.com/api/v9/guilds/{GUILD_ID}/scheduled-events"
 
     body = {}
 
@@ -109,32 +114,29 @@ def add_event(name, entity_type, channel_id, description, start_datetime, end_da
           "entity_type": 2
         }
 
-
     r = requests.post(endpoint, headers=headers, json=body)
 
     try:
         r.raise_for_status()
         response = r.json()
         print(response)
-
         return response
     except:
         return None
 
 
+# Returns a guild object.
 def get_guild():
     headers = {
-      "Authorization": f"Bot {DISCORD_BOT_TOKEN}"
+      "Authorization": f"Bot {BOT_TOKEN}"
     }
 
-    endpoint=f"https://discord.com/api/v9/guilds/{DISCORD_OA_GUILD_ID}?with_counts=true"
+    endpoint=f"https://discord.com/api/v9/guilds/{GUILD_ID}?with_counts=true"
 
     r = requests.get(endpoint, headers=headers)
     if r.status_code == 200:
         data = r.json()
         guild = data
-
-        # print(guild)
     else:
       guild = None
 
