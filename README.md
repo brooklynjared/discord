@@ -5,3 +5,5 @@ Requires an active Discord Bot and .env file containing:
 - Bot token
 - Guild ID
 - Channel ID
+
+Excerpted from the OpenAir - Mission Control web app.
